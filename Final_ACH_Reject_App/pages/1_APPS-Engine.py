@@ -19,7 +19,8 @@ def merge_csv_files(engine_df, open_tickets_df, previous_day_df):
 
     merged_df['settlement_match'] = 'No'
     merged_withsettlements = pd.merge(merged_df, previous_day_df, left_on='settlement_id', right_on='settlement_id', how='left')
-    merged_withsettlements.loc[merged_withsettlements['is_reattempted_y'].notnull(), 'settlement_match'] = 'Yes'
+    # Commented out, I think this should be x which is line below     merged_withsettlements.loc[merged_withsettlements['is_reattempted_y'].notnull(), 'settlement_match'] = 'Yes' 
+    merged_withsettlements.loc[merged_withsettlements['is_reattempted_x'].notnull(), 'settlement_match'] = 'Yes'
 
     specific_column_name = 'settlement_match'
 
