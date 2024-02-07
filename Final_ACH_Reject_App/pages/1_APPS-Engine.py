@@ -1,13 +1,15 @@
-#python-test % python3 -m streamlit run Carlos_App/test_streamlit.py 
-
-#Combine up to 7 of the spreadsheets together at once
-#for our initial merge make sure that there is a new collumn that says matched_settlement_id
+#python-test % python3 -m streamlit run Carlos_App/pages/test_streamlit.py 
 
 
 import pandas as pd
 import streamlit as st
 import base64
 import openpyxl
+
+def remove_suffix(column_name):
+    if column_name.endswith('_x'):
+        return column_name[:-2]
+    return column_name
 
 def merge_csv_files(engine_df, open_tickets_df, previous_day_df):
     engine_df_filtered = engine_df[engine_df['is_reattempted'] == False]
@@ -19,7 +21,6 @@ def merge_csv_files(engine_df, open_tickets_df, previous_day_df):
 
     merged_df['settlement_match'] = 'No'
     merged_withsettlements = pd.merge(merged_df, previous_day_df, left_on='settlement_id', right_on='settlement_id', how='left')
-    # Commented out, I think this should be x which is line below     merged_withsettlements.loc[merged_withsettlements['is_reattempted_y'].notnull(), 'settlement_match'] = 'Yes' 
     merged_withsettlements.loc[merged_withsettlements['is_reattempted_x'].notnull(), 'settlement_match'] = 'Yes'
 
     specific_column_name = 'settlement_match'
@@ -34,8 +35,12 @@ def merge_csv_files(engine_df, open_tickets_df, previous_day_df):
 
     # Select columns A-T
     merged_withsettlements = merged_withsettlements.iloc[:, :20]  # Assuming columns A-T are columns 0-19
-
     merged_withsettlements.drop_duplicates(inplace=True)
+
+
+    # Rename columns by removing '_x' suffix and flipping them
+    new_columns = [remove_suffix(col) for col in merged_withsettlements.columns]
+    merged_withsettlements.columns = new_columns
 
     return merged_withsettlements
 
@@ -65,6 +70,7 @@ def main():
         if st.button('Merge CSV Files'):
             merged_data = merge_csv_files(engine_df, open_tickets_df, previous_day_df)
             st.markdown(get_table_download_link(merged_data), unsafe_allow_html=True)
+
 
 
 def get_table_download_link(df):
