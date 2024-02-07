@@ -1,5 +1,7 @@
 #python-test % python3 -m streamlit run Carlos_App/pages/test_streamlit.py 
 
+#Combine up to 7 of the spreadsheets together at once
+#for our initial merge make sure that there is a new collumn that says matched_settlement_id
 
 import pandas as pd
 import streamlit as st
@@ -14,14 +16,23 @@ def remove_suffix(column_name):
 def merge_csv_files(engine_df, open_tickets_df, previous_day_df):
     engine_df_filtered = engine_df[engine_df['is_reattempted'] == False]
     engine_df_filtered['matched_id'] = 'No'
+
     merged_df = pd.merge(engine_df_filtered, open_tickets_df, left_on='merchant_id', right_on='stax_id', how='left')
-    #merged_df.loc[merged_df['ticket_id'].notnull(), 'matched_id'] = 'Yes'
-    merged_df.loc[merged_df['settlement_id'].notnull(), 'matched_id'] = 'Yes'
+
+    merged_df.loc[merged_df['merchant_id_y'].notnull(), 'matched_id'] = 'Yes'
     merged_df.drop(['merchant_id_y', 'stax_id'], axis=1, inplace=True)
 
     merged_df['settlement_match'] = 'No'
+
+    merged_df.loc[merged_df['company_state'] == 'RISKHOLD', 'settlement_match'] = 'Yes'
+    merged_df.loc[merged_df['company_state'] == 'RISKHOLD', 'matched_id'] = 'Yes'
+
     merged_withsettlements = pd.merge(merged_df, previous_day_df, left_on='settlement_id', right_on='settlement_id', how='left')
-    merged_withsettlements.loc[merged_withsettlements['is_reattempted_x'].notnull(), 'settlement_match'] = 'Yes'
+
+    merged_withsettlements.loc[merged_withsettlements['brand_name_y'].notnull(), 'settlement_match'] = 'Yes'
+
+
+   
 
     specific_column_name = 'settlement_match'
 
@@ -42,7 +53,8 @@ def merge_csv_files(engine_df, open_tickets_df, previous_day_df):
     new_columns = [remove_suffix(col) for col in merged_withsettlements.columns]
     merged_withsettlements.columns = new_columns
 
-    return merged_withsettlements
+    return merged_withsettlements # merged_withsettlements 
+
 
 def main():
     st.title("Stax Engine Daily Report Builder")
@@ -70,8 +82,6 @@ def main():
         if st.button('Merge CSV Files'):
             merged_data = merge_csv_files(engine_df, open_tickets_df, previous_day_df)
             st.markdown(get_table_download_link(merged_data), unsafe_allow_html=True)
-
-
 
 def get_table_download_link(df):
     csv = df.to_csv(index=False)
