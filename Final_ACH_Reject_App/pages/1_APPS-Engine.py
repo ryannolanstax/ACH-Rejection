@@ -3,6 +3,10 @@
 #Combine up to 7 of the spreadsheets together at once
 #for our initial merge make sure that there is a new collumn that says matched_settlement_id
 
+
+#NEEDS TO BE PUSHED _X is Removed
+
+
 import pandas as pd
 import streamlit as st
 import base64
@@ -14,7 +18,11 @@ def remove_suffix(column_name):
     return column_name
 
 def merge_csv_files(engine_df, open_tickets_df, previous_day_df):
-    engine_df_filtered = engine_df[engine_df['is_reattempted'] == False]
+  #  engine_df_filtered = engine_df[engine_df['is_reattempted'] == False]
+    #drop column now as its junk
+    engine_df_filtered.drop(columns=['is_reattempted'], inplace=True)
+    engine_df_filtered = engine_df[engine_df['is_reattempt'] == False]
+
     engine_df_filtered['matched_id'] = 'No'
 
     merged_df = pd.merge(engine_df_filtered, open_tickets_df, left_on='merchant_id', right_on='stax_id', how='left')
@@ -83,6 +91,8 @@ def main():
             merged_data = merge_csv_files(engine_df, open_tickets_df, previous_day_df)
             st.markdown(get_table_download_link(merged_data), unsafe_allow_html=True)
 
+
+
 def get_table_download_link(df):
     csv = df.to_csv(index=False)
     b64 = base64.b64encode(csv.encode()).decode()
@@ -91,3 +101,8 @@ def get_table_download_link(df):
 
 if __name__ == "__main__":
     main()
+
+
+
+#merchant_id	brand_name	business_legal_name	business_dba	updated_at	payout_id	settlement_id	type	amount	reference_number	status_reason	description	company_state	processor_name	CONCAT("'",o.processor_mid)	processor_ach_mid	is_reattempted	matched id	ticket id	settlement match
+#brand_name_x	business_legal_name_x	business_dba_x	updated_at_x	payout_id_x	settlement_id	type_x	amount_x	reference_number_x	status_reason_x	description_x	company_state_x	processor_name_x	CONCAT("'",o.processor_mid)_x	processor_ach_mid_x	is_reattempted_x	matched_id	ticket_id	settlement_match
