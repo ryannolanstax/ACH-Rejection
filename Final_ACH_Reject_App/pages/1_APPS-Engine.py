@@ -22,7 +22,8 @@ def merge_csv_files(engine_df, open_tickets_df, previous_day_df):
     #drop column now as its junk
     engine_df_filtered.drop(columns=['is_reattempted'], inplace=True)
     engine_df_filtered = engine_df[engine_df['is_reattempt'] == False]
-    engine_df_filtered.rename(columns={'is_reattempt': 'is_reattempted'}, inplace=True)
+ #   engine_df_filtered.rename(columns={'is_reattempt': 'is_reattempted'}, inplace=True)
+    engine_df_filtered.rename(columns={'is_reattempted': 'is_reattempt'}, inplace=True)
 
 
 
@@ -93,8 +94,6 @@ def main():
         if st.button('Merge CSV Files'):
             merged_data = merge_csv_files(engine_df, open_tickets_df, previous_day_df)
             st.markdown(get_table_download_link(merged_data), unsafe_allow_html=True)
-
-
 
 def get_table_download_link(df):
     csv = df.to_csv(index=False)
