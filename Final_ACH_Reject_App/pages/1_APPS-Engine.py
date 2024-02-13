@@ -22,6 +22,9 @@ def merge_csv_files(engine_df, open_tickets_df, previous_day_df):
     #drop column now as its junk
     engine_df_filtered.drop(columns=['is_reattempted'], inplace=True)
     engine_df_filtered = engine_df[engine_df['is_reattempt'] == False]
+    engine_df_filtered.rename(columns={'is_reattempt': 'is_reattempted'}, inplace=True)
+
+
 
     engine_df_filtered['matched_id'] = 'No'
 
