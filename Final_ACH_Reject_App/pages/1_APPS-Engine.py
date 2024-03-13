@@ -1,11 +1,4 @@
-#python-test % python3 -m streamlit run Carlos_App/pages/test_streamlit.py 
-
-#Combine up to 7 of the spreadsheets together at once
-#for our initial merge make sure that there is a new collumn that says matched_settlement_id
-
-
-#NEEDS TO BE PUSHED _X is Removed
-
+#python-test % python3 -m streamlit run Carlos_App/pages/testing_3_13.py 
 
 import pandas as pd
 import streamlit as st
@@ -18,52 +11,37 @@ def remove_suffix(column_name):
     return column_name
 
 def merge_csv_files(engine_df, open_tickets_df, previous_day_df):
-  #  engine_df_filtered = engine_df[engine_df['is_reattempted'] == False]
-    #drop column now as its junk
+
     engine_df.drop(columns=['is_reattempted'], inplace=True)
     engine_df_filtered = engine_df[engine_df['is_reattempt'] == False]
- #   engine_df_filtered.rename(columns={'is_reattempt': 'is_reattempted'}, inplace=True)
     engine_df_filtered.rename(columns={'is_reattempted': 'is_reattempt'}, inplace=True)
 
-    engine_df_filtered['matched_id'] = 'No'
+    engine_df_filtered = engine_df_filtered.add_suffix('_engine')
+    open_tickets_df = open_tickets_df.add_suffix('_tickets')
+    previous_day_df = previous_day_df.add_suffix('_previous_day')
 
-    merged_df = pd.merge(engine_df_filtered, open_tickets_df, left_on='merchant_id', right_on='stax_id', how='left')
+    merged_df = pd.merge(engine_df_filtered, open_tickets_df, left_on='merchant_id_engine', right_on='stax_id_tickets', how='left', suffixes=('_engine', '_tickets'))
+    merged_withsettlements = pd.merge(merged_df, previous_day_df, left_on='merchant_id_engine', right_on='merchant_id_previous_day', how='left')
 
-    merged_df.loc[merged_df['merchant_id_y'].notnull(), 'matched_id'] = 'Yes'
-    merged_df.drop(['merchant_id_y', 'stax_id'], axis=1, inplace=True)
+    merged_withsettlements['matched_id'] = 'No'
+    merged_withsettlements.loc[(merged_withsettlements['merchant_id_engine'] == merged_withsettlements['merchant_id_previous_day']), 'matched_id'] = 'Yes'
 
-    merged_df['settlement_match'] = 'No'
+    merged_withsettlements['matched_settlement'] = merged_withsettlements['settlement_id_engine'].isin(merged_withsettlements['settlement_id_previous_day']).map({True: 'Yes', False: 'No'})
 
-    merged_df.loc[merged_df['company_state'] == 'RISKHOLD', 'settlement_match'] = 'Yes'
-    merged_df.loc[merged_df['company_state'] == 'RISKHOLD', 'matched_id'] = 'Yes'
+    merged_withsettlements.drop(merged_withsettlements.columns[19:41], axis=1, inplace=True)
 
-    merged_withsettlements = pd.merge(merged_df, previous_day_df, left_on='settlement_id', right_on='settlement_id', how='left')
-
-    merged_withsettlements.loc[merged_withsettlements['brand_name_y'].notnull(), 'settlement_match'] = 'Yes'
-
-
-   
-
-    specific_column_name = 'settlement_match'
-
-    # Get the index of the specific column
-    column_index = merged_withsettlements.columns.get_loc(specific_column_name)
-
-    # Select columns up to the specific column and drop the rest to the right
-    columns_to_drop = merged_withsettlements.columns[column_index + 1:]
+    columns_to_drop = ['merchant_id_tickets']
     merged_withsettlements.drop(columns=columns_to_drop, inplace=True)
 
+    merged_withsettlements.columns = merged_withsettlements.columns.str.replace('_engine', '')
+    merged_withsettlements.columns = merged_withsettlements.columns.str.replace('_tickets', '')
 
-    # Select columns A-T
-    merged_withsettlements = merged_withsettlements.iloc[:, :20]  # Assuming columns A-T are columns 0-19
+    ticket_id_column = merged_withsettlements.pop('ticket_id')
+    merged_withsettlements.insert(merged_withsettlements.columns.get_loc('matched_id') + 1, 'ticket_id', ticket_id_column)
+
     merged_withsettlements.drop_duplicates(inplace=True)
 
-
-    # Rename columns by removing '_x' suffix and flipping them
-    new_columns = [remove_suffix(col) for col in merged_withsettlements.columns]
-    merged_withsettlements.columns = new_columns
-
-    return merged_withsettlements # merged_withsettlements 
+    return merged_withsettlements
 
 
 def main():
@@ -101,8 +79,3 @@ def get_table_download_link(df):
 
 if __name__ == "__main__":
     main()
-
-
-
-#merchant_id	brand_name	business_legal_name	business_dba	updated_at	payout_id	settlement_id	type	amount	reference_number	status_reason	description	company_state	processor_name	CONCAT("'",o.processor_mid)	processor_ach_mid	is_reattempted	matched id	ticket id	settlement match
-#brand_name_x	business_legal_name_x	business_dba_x	updated_at_x	payout_id_x	settlement_id	type_x	amount_x	reference_number_x	status_reason_x	description_x	company_state_x	processor_name_x	CONCAT("'",o.processor_mid)_x	processor_ach_mid_x	is_reattempted_x	matched_id	ticket_id	settlement_match
