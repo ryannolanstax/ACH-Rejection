@@ -1,4 +1,4 @@
-#python-test % python3 -m streamlit run Carlos_App/pages/testing_3_13.py 
+#python3 -m streamlit run Carlos_App/pages/testing_5_16.py 
 
 import pandas as pd
 import streamlit as st
@@ -28,6 +28,8 @@ def merge_csv_files(engine_df, open_tickets_df, previous_day_df):
 
     merged_withsettlements['matched_settlement'] = merged_withsettlements['settlement_id_engine'].isin(merged_withsettlements['settlement_id_previous_day']).map({True: 'Yes', False: 'No'})
 
+
+    #columns_to_drop = ['ticket_id_tickets', 'merchant_id_tickets', 'stax_id_tickets', 'merchant_id_previous_day', 'brand_name_previous_day', 'business_legal_name_previous_day', 'business_dba_previous_day', 'updated_at_previous_day', 'payout_id_previous_day', 'settlement_id_previous_day', 'type_previous_day', 'amount_previous_day', 'reference_number_previous_day', 'status_reason_previous_day', 'description_previous_day', 'company_state_previous_day', 'processor_name_previous_day', 'CONCAT("'",o.processor_mid)_previous_day', 'processor_ach_mid_previous_day', 'is_reattempt_previous_day', 'matched_id_previous_day', 'ticket_id_previous_day', 'settlement_match_previous_day', 'Risk Action_previous_day']
     merged_withsettlements.drop(merged_withsettlements.columns[19:41], axis=1, inplace=True)
 
     columns_to_drop = ['merchant_id_tickets']
@@ -41,7 +43,92 @@ def merge_csv_files(engine_df, open_tickets_df, previous_day_df):
 
     merged_withsettlements.drop_duplicates(inplace=True)
 
+#still working here
+ #   merged_withsettlements["processor_mid_concatenated"] = merged_withsettlements["o.processor_mid"].apply(lambda x: f"'{x}'")
+
+
+    final_columns = [
+    'merchant_id',
+    'brand_name',
+    'business_legal_name',
+    'business_dba',
+    'updated_at',
+    'payout_id',
+    'settlement_id',
+    'type',
+    'amount',
+    'reference_number',
+    'status_reason',
+    'description',
+    'company_state',
+    'processor_name',
+    "processor_mid_concatenated",
+    'processor_ach_mid',
+    'is_reattempt',
+    'matched_id_previous_day',
+    'ticket_id_previous_day',
+    'matched_settlement_previous_day',
+    'Risk Action_previous_day',
+    'matched_id',
+    'ticket_id',
+    'matched_settlement'
+]
+  
+    # Assuming merged_withsettlements is your DataFrame
+    merged_withsettlements = merged_withsettlements.loc[:, final_columns]
+
+
+    merged_withsettlements = merged_withsettlements.drop_duplicates()
+
+
+    #new line added 5 17
+    merged_withsettlements = merged_withsettlements.drop_duplicates(subset=['payout_id', 'settlement_id'], keep='last')
+
+
+
+
+
+
+		
+
+
+
+    #drop duplicates
+
+
+
+
+
+   # 
+    #good through here
+
+ #   merged_withsettlements = pd.merge(merged_df, previous_day_df, left_on='merchant_id_x', right_on='merchant_id', how='outer')
+ #   merged_withsettlements['settlement_match'] = 'No'
+   # merged_withsettlements.loc[(merged_df['merchant_id_y'].notnull()) | (merged_df['payout_id_y'].notnull()), 'matched_id'] = 'Yes'
+   # merged_withsettlements.loc[merged_df['company_state'] == 'RISKHOLD', 'settlement_match'] = 'Yes'
+
+#previous day has merchant id
+
+
+
+
+
+    
+ #   merged_df.drop(['merchant_id_y', 'stax_id'], axis=1, inplace=True)
+
+ #   merged_df['settlement_match'] = 'No'
+
+ #   merged_df.loc[merged_df['company_state'] == 'RISKHOLD', 'settlement_match'] = 'Yes'
+ #   merged_df.loc[merged_df['company_state'] == 'RISKHOLD', 'matched_id'] = 'Yes'
+
+    
+
+ #   merged_withsettlements.loc[merged_withsettlements['brand_name_y'].notnull(), 'settlement_match'] = 'Yes'
+
     return merged_withsettlements
+ #   return merged_df
+#    return previous_day_df
+
 
 
 def main():
