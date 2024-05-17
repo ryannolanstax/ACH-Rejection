@@ -81,6 +81,11 @@ def merge_csv_files(engine_df, open_tickets_df, previous_day_df):
     merged_withsettlements = merged_withsettlements.drop_duplicates()
 
 
+    #new line added 5 17
+    merged_withsettlements = merged_withsettlements.drop_duplicates(subset=['payout_id', 'settlement_id'], keep='last')
+
+
+
 
 
 
