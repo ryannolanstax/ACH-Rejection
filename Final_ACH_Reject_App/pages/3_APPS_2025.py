@@ -35,6 +35,9 @@ if accounting_file and appsos_values_file:
     df_corrected_data = df2[df2['CorrectedData'].notna()]
     df3 = df2[df2['CorrectedData'].isnull()]
 
+    df3.loc[:, 'IdentificationNumber'] = df3['IdentificationNumber'].astype('int64')
+
+
     df4 = df3.drop(columns=['CompanyID', 'ReturnFlag', 'EDIFlag', 'EffectiveEntryDate', 'SettlementDate', 'OriginatingFileName', 'FileCreationDateTime', 'CompanyName', 'CompanyDiscretionaryData', 'StandardEntryClassCode', 'CompanyDescriptiveDate', 'OriginatorStatusCode', 'OriginatingDFIIdentification', 'ReceivingDFIIdentification', 'CheckDigit', 'CheckSerialNumber', 'DiscretionaryData', 'TraceNumber', 'PaymentTypeCode', 'PaymentRelatedInformation', 'ItemTypeIndicator', 'CardTransactionTypeCode', 'TerminalCity', 'TerminalState', 'CardExpirationDate', 'DocumentReferenceNumber', 'IndividualCardAccountNumber', 'ProcessControlField', 'ItemResearchNumber', 'AddendaTypeCode', 'TransactionDescription', 'NetworkIdentificationCode', 'TerminalIdentificationCode', 'TransactionSerialNumber', 'TransactionDate', 'TransactionTime', 'TerminalLocation', 'ReferenceInformation1', 'ReferenceInformation2', 'TraceNumber_7', 'AuthorizationCodeOrCardExpirationDate', 'TransactionTypeCode', 'ForeignReceivingDFIIdentification', 'ForeignPaymentAmount', 'ForeignTraceNumber', 'ForeignReceiversAccountNumber', 'ChangeCode', 'OriginalReceivingDFIIdentification', 'CorrectedData'])
 
     def company_description(value):
