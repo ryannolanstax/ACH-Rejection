@@ -39,15 +39,15 @@ if accounting_file and appsos_values_file:
 
     def company_description(value):
       if value == 'MERCH DEP':
-        return 'MERCH DEP'
+        return 'Deposit'
       elif value == 'CR CD DEP':
-        return 'MERCH DEP'
+        return 'Deposit'
       elif value == 'DLY FEE S':
-        return 'MERCH DEP'
+        return 'Fees'
       elif value == 'CCDISCOUNT':
         return 'Month End Fee'
       else:
-        return value
+         return value
 
     df4['CompanyEntryDescription'] = df4['CompanyEntryDescription'].apply(company_description)
 
