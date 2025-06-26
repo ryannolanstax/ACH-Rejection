@@ -55,10 +55,12 @@ if accounting_file and appsos_values_file:
     df4['CompanyEntryDescription'] = df4['CompanyEntryDescription'].apply(company_description)
 
     df4['IdentificationNumber'] = df4['IdentificationNumber'].apply(lambda x: f'6{x}' if pd.notna(x) else x)
+    df4['IdentificationNumber'] = df4['IdentificationNumber'].str.strip().astype(int)
 
     df4['OriginalEntryTraceNumber'] = df4['OriginalEntryTraceNumber'].apply(lambda x: f'0{x}' if pd.notna(x) else x)
 
     df4 = df4.sort_values(by=['AccountNumber', 'ReceiverName'])
+    
 
     df5 = pd.merge(df4, appsos_values, left_on='IdentificationNumber', right_on='merchant_id', how='left')
 
