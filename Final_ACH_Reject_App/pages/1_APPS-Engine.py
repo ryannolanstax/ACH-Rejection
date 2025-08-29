@@ -4,6 +4,17 @@ import pandas as pd
 import streamlit as st
 import base64
 import openpyxl
+from auth_utils import require_auth, get_user_info
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
+if require_auth("Your Page Title"):
+    # Your protected page content goes here
+    user_info = get_user_info()
+
+
 
 def remove_suffix(column_name):
     if column_name.endswith('_x'):
